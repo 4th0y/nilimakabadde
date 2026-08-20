@@ -1,0 +1,111 @@
+{% extends "party/base.html" %}
+{% load static %}
+
+{% block title %}Happy Birthday, {{ config.friend_name }}!{% endblock %}
+
+{% block content %}
+
+<section class="hero" id="hero">
+  <div class="hero__confetti-field" aria-hidden="true"></div>
+  <p class="hero__eyebrow">a small website, entirely for</p>
+  <h1 class="hero__title">{{ config.friend_name }}</h1>
+  <p class="hero__tagline">{{ config.hero_tagline }}</p>
+  <button type="button" id="cannon-btn" class="cannon-btn">
+    <span class="cannon-btn__ring"></span>
+    Pull the string
+  </button>
+  <a href="#story" class="hero__scroll-hint" id="scroll-hint">scroll down ↓</a>
+</section>
+
+{% if memories %}
+<section class="section timeline" id="story">
+  <p class="section__eyebrow">the story so far</p>
+  <h2 class="section__title">Our Scrapbook</h2>
+  <div class="timeline__strip">
+    {% for memory in memories %}
+    <figure class="polaroid">
+      <div class="polaroid__tape"></div>
+      <img src="{{ memory.photo.url }}" alt="{{ memory.caption }}">
+      {% if memory.date_label %}<span class="polaroid__date">{{ memory.date_label }}</span>{% endif %}
+      <figcaption>{{ memory.caption }}</figcaption>
+    </figure>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if config.letter_body %}
+<section class="section letter-section" id="letter">
+  <p class="section__eyebrow">before you keep scrolling</p>
+  <h2 class="section__title">{{ config.letter_title }}</h2>
+  <div class="envelope" id="envelope">
+    <button type="button" class="envelope__flap" id="envelope-btn" aria-expanded="false">
+      <span class="envelope__seal">✦</span>
+      <span class="envelope__label">tap to open</span>
+    </button>
+    <div class="envelope__letter" id="envelope-letter">
+      <p>{{ config.letter_body|linebreaksbr }}</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if config.spotify_embed_url %}
+<section class="section music-section">
+  <p class="section__eyebrow">press play</p>
+  <h2 class="section__title">A Soundtrack For Today</h2>
+  <div class="boombox">
+    <div class="boombox__speaker"></div>
+    <div class="boombox__frame">
+      <iframe src="{{ config.spotify_embed_url }}" width="100%" height="152"
+        frameborder="0" allowfullscreen loading="lazy"
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"></iframe>
+    </div>
+    <div class="boombox__speaker"></div>
+  </div>
+</section>
+{% endif %}
+
+<section class="section wall-section" id="wall">
+  <p class="section__eyebrow">from everyone who loves you</p>
+  <h2 class="section__title">The Wishing Wall</h2>
+
+  {% if wall_messages %}
+  <div class="corkboard">
+    {% for m in wall_messages %}
+    <div class="note note--{{ m.color }}">
+      <span class="note__pin"></span>
+      <p class="note__text">{{ m.message }}</p>
+      <p class="note__name">— {{ m.name }}</p>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="wall-empty">No notes yet — be the first to pin one below.</p>
+  {% endif %}
+
+  {% if messages %}
+    {% for django_msg in messages %}
+      <p class="form-flash">{{ django_msg }}</p>
+    {% endfor %}
+  {% endif %}
+
+  <form method="post" class="note-form" id="note-form">
+    {% csrf_token %}
+    <div class="note-form__row">
+      {{ form.name }}
+      {{ form.color }}
+    </div>
+    {{ form.message }}
+    {% if form.errors %}
+    <p class="note-form__error">Please fill in your name and a short message.</p>
+    {% endif %}
+    <button type="submit" class="note-form__submit">Pin it to the wall</button>
+  </form>
+</section>
+
+<footer class="footer">
+  <p>made with a lot of care, one &lt;div&gt; at a time.</p>
+</footer>
+
+{% endblock %}
